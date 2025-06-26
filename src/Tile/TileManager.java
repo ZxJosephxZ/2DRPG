@@ -1,6 +1,7 @@
 package Tile;
 
 import Main.GamePanel;
+import Main.UtilityTool;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -56,21 +57,35 @@ public class TileManager {
 
     public  void getTileImage()
     {
-        try {
             for (int i = 0; i < 6; i++)
             {
-                tile[i] = new Tile();
-                tile[i].image = ImageIO.read(getClass().getResourceAsStream("/Tiles/tile"+(i+1)+".png"));
+                //tile[i] = new Tile();
+                //tile[i].image = ImageIO.read(getClass().getResourceAsStream("/Tiles/tile"+(i+1)+".png"));
                 if ((i+1) == 4 || (i+1) == 2)
                 {
-                    tile[i].collision = true;
+                    setup(i,true);
+                   // tile[i].collision = true;
+                }
+                else{
+                    setup(i,false);
                 }
             }
-        }catch (IOException e)
-        {
+
+    }
+
+    public void setup(int index, boolean collision)
+    {
+        UtilityTool uTool = new UtilityTool();
+        try{
+            tile[index] = new Tile();
+            tile[index].image = ImageIO.read(getClass().getResourceAsStream("/Tiles/tile"+(index+1)+".png"));
+            tile[index].image = uTool.scaleImage(tile[index].image, gp.tileSize, gp.tileSize);
+            tile[index].collision = collision;
+        }catch (IOException e){
             e.printStackTrace();
         }
     }
+
     public void draw(Graphics2D g2)
     {
         int worldCol = 0;
@@ -88,7 +103,7 @@ public class TileManager {
                     worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
                     worldY - gp.tileSize < gp.player.worldY + gp.player.screenY)
             {
-                g2.drawImage(tile[tileNum].image,screenX,screenY,gp.tileSize,gp.tileSize,null);
+                g2.drawImage(tile[tileNum].image,screenX,screenY,null);
             }
             worldCol++;
             if (worldCol == gp.maxWorldCol)

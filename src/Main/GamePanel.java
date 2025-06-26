@@ -2,7 +2,7 @@ package Main;
 
 import Entity.Player;
 import Tile.TileManager;
-
+import OBject.SuperObject;
 import javax.swing.*;
 import java.awt.*;
 
@@ -19,19 +19,25 @@ public class GamePanel extends JPanel implements Runnable{
 
     public final int maxWorldCol = 50;
     public final int maxWorldRow = 50;
-    public final int worldWidth = tileSize * maxWorldCol;
-    public final int worldHeight = tileSize * maxWorldRow;
 
-    KeyHandler KeyH = new KeyHandler();
-    Thread gameThread;
+    KeyHandler KeyH = new KeyHandler(this);
+
+    public int gameState;
+    public final int playState = 1;
+    public final int pauseState = 2;
 
     private final int FPS = 120;
     private final int UPS = 100;
 
+    Sound se = new Sound();
+    Sound music = new Sound();
     TileManager tileM = new TileManager(this);
-
+    public AssetSetter aSetter = new AssetSetter(this);
     public Player player = new Player(this, KeyH);
+    public SuperObject obj[] = new SuperObject[10];
     public CollisionChecker collisionChecker = new CollisionChecker(this);
+    public UI ui = new UI(this);
+    Thread gameThread;
 
     public GamePanel()
     {
@@ -42,6 +48,13 @@ public class GamePanel extends JPanel implements Runnable{
         this.setFocusable(true);
     }
 
+    public void setupGame()
+    {
+        aSetter.setObject();
+        playMusic(0);
+        gameState = playState;
+    }
+
     public void startGameThread()
     {
         gameThread = new Thread(this);
@@ -50,15 +63,61 @@ public class GamePanel extends JPanel implements Runnable{
 
     public void update()
     {
-        player.update();
+        if (gameState == playState)
+        {
+            player.update();
+        }
+        if (gameState == pauseState)
+        {
+
+        }
     }
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
+        long drawStart = 0;
+        if (KeyH.checkDrawTime == true)
+        {
+            drawStart = System.nanoTime();
+        }
         tileM.draw(g2);
+        for (int i = 0; i < obj.length;i++)
+        {
+            if (obj[i] != null)
+            {
+                obj[i].draw(g2,this);
+            }
+        }
         player.draw(g2);
-        g2.dispose();
+        ui.draw(g2);
+        //debug
+        if (KeyH.checkDrawTime == true) {
+            long drawEnd = System.nanoTime();
+            long passed = drawEnd - drawStart;
+            g2.setColor(Color.WHITE);
+            g2.drawString("Draw Time: " + passed, 10, 400);
+            System.out.println("Draw Time: " + passed);
+            g2.dispose();
+        }
+    }
+
+    public void playMusic(int i)
+    {
+        music.setFile(i);
+        music.play();
+        music.loop();
+    }
+
+    public void stopMusic()
+    {
+        music.stop();
+    }
+
+    public void playSe(int i)
+    {
+        se.setFile(i);
+        se.play();
     }
 
     @Override

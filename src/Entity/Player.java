@@ -2,6 +2,7 @@ package Entity;
 
 import Main.GamePanel;
 import Main.KeyHandler;
+import Main.UtilityTool;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -17,6 +18,7 @@ public class Player extends Entity{
     BufferedImage imgPlayer;
     BufferedImage animations[][];
     int aniTick, aniIndex, aniSpeed = 15;
+    public int hasKey = 0;
 
     public final int screenX;
     public final int screenY;
@@ -28,6 +30,8 @@ public class Player extends Entity{
         screenX = gp.screenWidth/2 - (gp.tileSize/2);
         screenY = gp.screenHeight/2 - (gp.tileSize/2);
         solidArea = new Rectangle(16,16,15,18);
+        solidAreaDefaultX = solidArea.x;
+        getSolidAreaDefaultY = solidArea.y;
         importImage();
         loadAnimations();
         setDefaultValues();
@@ -47,9 +51,16 @@ public class Player extends Entity{
         {
             for (int i = 0; i < animations[j].length;i++)
             {
-                animations[j][i] = imgPlayer.getSubimage(i*32,j*32,32,32);
+                animations[j][i] = setUp(imgPlayer.getSubimage(i*32,j*32,32,32));
             }
         }
+    }
+
+    private BufferedImage setUp(BufferedImage sprite)
+    {
+        UtilityTool uTool = new UtilityTool();
+        sprite = uTool.scaleImage(sprite,gp.tileSize,gp.tileSize);
+        return sprite;
     }
 
     private void importImage()
@@ -113,6 +124,8 @@ public class Player extends Entity{
         }
         collisionOn = false;
         gp.collisionChecker.checkTile(this);
+        int objIndex = gp.collisionChecker.checkOject(this,true);
+        pickUpObject(objIndex);
         if (collisionOn == false && pressOff != 1)
         {
             switch(playerAction){
@@ -127,6 +140,43 @@ public class Player extends Entity{
                     break;
                 case RIGHT:
                     worldX += speed;
+                    break;
+            }
+        }
+    }
+
+    public void pickUpObject(int i)
+    {
+        if (i != 999)
+        {
+            String objectName = gp.obj[i].name;
+            switch (objectName){
+                case "Key":
+                    hasKey++;
+                    gp.obj[i] = null;
+                    gp.ui.showMessage("You got a key!");
+                    break;
+                case "Door":
+                    if(hasKey > 0)
+                    {
+                        gp.obj[i] = null;
+                        hasKey--;
+                        gp.ui.showMessage("You opened the door!");
+                    }
+                    else
+                    {
+                        gp.ui.showMessage("You need a key!");
+                    }
+                    break;
+                case "Boot":
+                    speed += 2;
+                    gp.obj[i] = null;
+                    gp.ui.showMessage("Speed up!");
+                    break;
+                case "Chess":
+                    gp.ui.gameFinished = true;
+                    gp.stopMusic();
+                    gp.playSe(1);
                     break;
             }
         }
@@ -149,8 +199,7 @@ public class Player extends Entity{
     public void draw(Graphics2D g2)
     {
         updateAnimationTick();
-        g2.drawImage(animations[playerAction][aniIndex], screenX,screenY,48,48,null);
-
+        g2.drawImage(animations[playerAction][aniIndex], screenX,screenY,null);
     }
 
 }

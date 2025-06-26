@@ -8,6 +8,7 @@ public class Entity {
     public int worldX, worldY;
     public int speed;
     public Rectangle solidArea;
+    public int solidAreaDefaultX, getSolidAreaDefaultY;
     public boolean collisionOn = false;
     public int playerAction = IDLE;
     public int pressOff = 0;
