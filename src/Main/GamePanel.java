@@ -1,5 +1,6 @@
 package Main;
 
+import Entity.Entity;
 import Entity.Player;
 import Tile.TileManager;
 import OBject.SuperObject;
@@ -25,6 +26,7 @@ public class GamePanel extends JPanel implements Runnable{
     public int gameState;
     public final int playState = 1;
     public final int pauseState = 2;
+    public final int dialogueState = 3;
 
     private final int FPS = 120;
     private final int UPS = 100;
@@ -36,6 +38,7 @@ public class GamePanel extends JPanel implements Runnable{
     public Player player = new Player(this, KeyH);
     public SuperObject obj[] = new SuperObject[10];
     public CollisionChecker collisionChecker = new CollisionChecker(this);
+    public  Entity npc[] = new Entity [10];
     public UI ui = new UI(this);
     Thread gameThread;
 
@@ -51,7 +54,9 @@ public class GamePanel extends JPanel implements Runnable{
     public void setupGame()
     {
         aSetter.setObject();
+        aSetter.setNpc();
         playMusic(0);
+        stopMusic();
         gameState = playState;
     }
 
@@ -66,6 +71,13 @@ public class GamePanel extends JPanel implements Runnable{
         if (gameState == playState)
         {
             player.update();
+            for ( int i = 0; i< npc.length;i++)
+            {
+                if (npc[i] != null)
+                {
+                    npc[i].update();
+                }
+            }
         }
         if (gameState == pauseState)
         {
@@ -89,6 +101,16 @@ public class GamePanel extends JPanel implements Runnable{
                 obj[i].draw(g2,this);
             }
         }
+        //npc
+        for (int i = 0; i< npc.length;i++)
+        {
+            if (npc[i] != null)
+            {
+                npc[i].draw(g2);
+            }
+        }
+
+        //player
         player.draw(g2);
         ui.draw(g2);
         //debug

@@ -13,26 +13,24 @@ import java.io.InputStream;
 import static Utils.Constants.PlayerConstants.*;
 
 public class Player extends Entity{
-    GamePanel gp;
-    KeyHandler KeyH;
+
     BufferedImage imgPlayer;
-    BufferedImage animations[][];
-    int aniTick, aniIndex, aniSpeed = 15;
-    public int hasKey = 0;
+
+    //int aniTick, aniIndex, aniSpeed = 15;
 
     public final int screenX;
     public final int screenY;
 
     public Player(GamePanel gp, KeyHandler KeyH)
     {
-        this.gp = gp;
+        super(gp, KeyH);
         this.KeyH = KeyH;
         screenX = gp.screenWidth/2 - (gp.tileSize/2);
         screenY = gp.screenHeight/2 - (gp.tileSize/2);
         solidArea = new Rectangle(16,16,15,18);
         solidAreaDefaultX = solidArea.x;
         getSolidAreaDefaultY = solidArea.y;
-        importImage();
+        imgPlayer = importImage("/Player/spriteCompletoPlayer.png");
         loadAnimations();
         setDefaultValues();
     }
@@ -56,66 +54,23 @@ public class Player extends Entity{
         }
     }
 
-    private BufferedImage setUp(BufferedImage sprite)
-    {
-        UtilityTool uTool = new UtilityTool();
-        sprite = uTool.scaleImage(sprite,gp.tileSize,gp.tileSize);
-        return sprite;
-    }
-
-    private void importImage()
-    {
-        InputStream is = getClass().getResourceAsStream("/Player/spriteCompletoPlayer.png");
-        try{
-            imgPlayer = ImageIO.read(is);
-        }catch (IOException e)
-        {
-            e.printStackTrace();
-        }finally {
-            try{
-                is.close();
-            }catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public void update()
     {
         pressOff = 0;
         if (KeyH.upPressed == true)
         {
-           // if (!collisionOn)
-          //  {
-         //       worldY -= speed;
-         //  }
              playerAction = DOWN;
         }
         else if (KeyH.downPressed == true)
         {
-           // if (!collisionOn)
-          //  {
-         //       worldY += speed;
-           // }
-
             playerAction = IDLE;
         }
         else if (KeyH.leftPressed == true)
         {
-          //  if (!collisionOn)
-          //  {
-         //       worldX -= speed;
-         //   }
-
             playerAction = LEFT;
         }
         else if (KeyH.rightPressed == true)
         {
-           // if (!collisionOn)
-            //{
-             //   worldX += speed;
-            //}
             playerAction = RIGHT;
         }
         else
@@ -126,6 +81,8 @@ public class Player extends Entity{
         gp.collisionChecker.checkTile(this);
         int objIndex = gp.collisionChecker.checkOject(this,true);
         pickUpObject(objIndex);
+        int npcIndex = gp.collisionChecker.CheckEntity(this, gp.npc);
+        interactNpc(npcIndex);
         if (collisionOn == false && pressOff != 1)
         {
             switch(playerAction){
@@ -145,54 +102,20 @@ public class Player extends Entity{
         }
     }
 
+    public void interactNpc(int i)
+    {
+        if (i != 999)
+        {
+            gp.gameState = gp.dialogueState;
+            gp.npc[i].speak();
+        }
+    }
+
     public void pickUpObject(int i)
     {
         if (i != 999)
         {
-            String objectName = gp.obj[i].name;
-            switch (objectName){
-                case "Key":
-                    hasKey++;
-                    gp.obj[i] = null;
-                    gp.ui.showMessage("You got a key!");
-                    break;
-                case "Door":
-                    if(hasKey > 0)
-                    {
-                        gp.obj[i] = null;
-                        hasKey--;
-                        gp.ui.showMessage("You opened the door!");
-                    }
-                    else
-                    {
-                        gp.ui.showMessage("You need a key!");
-                    }
-                    break;
-                case "Boot":
-                    speed += 2;
-                    gp.obj[i] = null;
-                    gp.ui.showMessage("Speed up!");
-                    break;
-                case "Chess":
-                    gp.ui.gameFinished = true;
-                    gp.stopMusic();
-                    gp.playSe(1);
-                    break;
-            }
-        }
-    }
 
-    private void updateAnimationTick()
-    {
-        aniTick++;
-        if (aniTick >= aniSpeed)
-        {
-            aniTick = 0;
-            aniIndex++;
-            if (aniIndex >= GetSpriteAmount(playerAction))
-            {
-                aniIndex = 0;
-            }
         }
     }
 

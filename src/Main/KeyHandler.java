@@ -21,40 +21,50 @@ public class KeyHandler implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
-        if (code == KeyEvent.VK_W)
+        if (gp.gameState == gp.playState)
         {
-            upPressed = true;
-        }
-        if (code == KeyEvent.VK_S)
-        {
-            downPressed = true;
-        }
-        if (code == KeyEvent.VK_A)
-        {
-            leftPressed = true;
-        }
-        if (code == KeyEvent.VK_D)
-        {
-            rightPressed = true;
-        }
-        if (code == KeyEvent.VK_T)
-        {
-            if (checkDrawTime == false)
+            if (code == KeyEvent.VK_W)
             {
-                checkDrawTime = true;
+                upPressed = true;
             }
-            else if (checkDrawTime == true)
+            if (code == KeyEvent.VK_S)
             {
-                checkDrawTime = false;
+                downPressed = true;
             }
-        }
-        if (code == KeyEvent.VK_P)
-        {
-            if (gp.gameState == gp.playState)
+            if (code == KeyEvent.VK_A)
+            {
+                leftPressed = true;
+            }
+            if (code == KeyEvent.VK_D)
+            {
+                rightPressed = true;
+            }
+            if (code == KeyEvent.VK_T)
+            {
+                if (checkDrawTime == false)
+                {
+                    checkDrawTime = true;
+                }
+                else if (checkDrawTime == true)
+                {
+                    checkDrawTime = false;
+                }
+            }
+            if (code == KeyEvent.VK_P)
             {
                 gp.gameState = gp.pauseState;
             }
-            else if (gp.gameState == gp.pauseState)
+        }
+        else if (gp.gameState == gp.pauseState)
+        {
+            if (code == KeyEvent.VK_P)
+            {
+                gp.gameState = gp.playState;
+            }
+        }
+        else if (gp.gameState == gp.dialogueState)
+        {
+            if (code == KeyEvent.VK_ENTER)
             {
                 gp.gameState = gp.playState;
             }
